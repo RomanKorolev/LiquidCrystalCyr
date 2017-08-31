@@ -1,3 +1,5 @@
+//Arduino Uno (Mega328) + Arduino Keypad + LCD 1602 Shield 
+
 //Нужно здесь подключить LiquidCrystal.h чтобы он был доступен при компиляции
 #include <LiquidCrystal.h>
 #include "LiquidCrystalCyr.h"
@@ -12,7 +14,7 @@
 LiquidCrystalCyr lcd(LCD_RS, LCD_EN, LCD_D0, LCD_D1, LCD_D2, LCD_D3);
 
 void setup(){
-  //Инициализируем работы с дисплеем 1602 (16х2)
+  //Инициализируем работу с дисплеем 1602 (16х2)
   lcd.begin(16, 2);
   //Подготавливаем информацию к выводу
   //Устанавливаем курсор в левый верхний угол
