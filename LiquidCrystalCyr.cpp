@@ -1,14 +1,14 @@
 #include "LiquidCrystalCyr.h"
 
 //КОНСТАНТЫ В PROGMEM Кодировка выводимых на экран строк должна быть CP866, т.к. коды ASCII коды 0x80 .. 0x9F
-const unsigned char LCDKirillicRecodingMap [] PROGMEM= {				//таблица перекодировки кириллических символов	
+const unsigned char LCDKirillicRecodingMap [] PROGMEM= {//таблица перекодировки кириллических символов	
 	0x41, 0x00, 0x42, 0x01, 0x02, 0x45, 0x03, 0x04,				//АБВГДЕЖЗ
 	0x05, 0x06, 0x4b, 0x07, 0x4d, 0x48, 0x4f, 0x08,				//ИЙКЛМНОП
 	0x50, 0x43, 0x54, 0x09, 0x0a, 0x58, 0x0b, 0x0c,				//РСТУФХЦЧ
 	0x0d, 0x0e, 0x0f, 0x10, 0x62, 0x11, 0x12, 0x13				//ШЩЪЫЬЭЮЯ
 };
 
-const unsigned char LCDKirillicFont [] PROGMEM= {								//битовый массив кириллических символов
+const unsigned char LCDKirillicFont [] PROGMEM= {//битовый массив кириллических символов
 	0b11111,0b10001,0b10000,0b11110,0b10001,0b10001,0b11110,0b00000,	//Б (0)
 	0b11111,0b10000,0b10000,0b10000,0b10000,0b10000,0b10000,0b00000,	//Г (1)
 	0b01111,0b00101,0b00101,0b01001,0b10001,0b11111,0b10001,0b10001,	//Д (2)
@@ -63,7 +63,12 @@ size_t LiquidCrystalCyr::write(uint8_t ch){
   }
   _x++;
   if(_x >=  _numcols){
-    _x = _numcols - 1;
+    if(_y < _numrows - 1){
+      _y++;
+      _x = 0;
+    }else{
+      _x = _numcols - 1;
+    }
   }
   return 1;
 }
@@ -115,16 +120,17 @@ void LiquidCrystalCyr::show(){
   // поэтому пришлось колхозить на низком уровне, загружаем сразу все символы
   command(LCD_SETCGRAMADDR);
   for(uint8_t k = 0; k < loaded_chars_cnt; k++){
-    PGM_P p = reinterpret_cast<PGM_P>(LCDKirillicFont + loaded_map[k] * CHARS_PER_SYMBOL);
-    for(uint8_t i = 0; i < CHARS_PER_SYMBOL; i++){
-      send(pgm_read_byte(p++), 1);
+    PGM_P p = reinterpret_cast<PGM_P>(LCDKirillicFont + loaded_map[k] * BYTES_PER_SYMBOL);
+    for(uint8_t i = 0; i < BYTES_PER_SYMBOL; i++){
+      LiquidCrystal::write(pgm_read_byte(p++));
+      //send(pgm_read_byte(p++), 1);
     }
   }
   /*
   for(uint8_t k = 0; k < loaded_chars_cnt; k++){
-    uint8_t p = loaded_map[k] * CHARS_PER_SYMBOL;
-    uint8_t buf[CHARS_PER_SYMBOL];
-    for(uint8_t i = 0; i < CHARS_PER_SYMBOL; i++){
+    uint8_t p = loaded_map[k] * BYTES_PER_SYMBOL;
+    uint8_t buf[BYTES_PER_SYMBOL];
+    for(uint8_t i = 0; i < BYTES_PER_SYMBOL; i++){
       buf[i] = read_font_byte(p++);
     }
     createChar(k, buf);
@@ -143,5 +149,14 @@ void LiquidCrystalCyr::clear(){
     }
   }
   _flag_refresh = 1;
+}
+
+void LiquidCrystalCyr::createChar(uint8_t location, uint8_t charmap[]) {
+  location &= 0x7; // we only have 8 locations 0-7
+  command(LCD_SETCGRAMADDR | (location << 3));
+  for (int i=0; i<8; i++) {
+    LiquidCrystal::write(charmap[i]);
+  }
+  command(LCD_SETDDRAMADDR);  //Костыль чтобы выйти из этого режима
 }
 

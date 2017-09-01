@@ -1,5 +1,5 @@
-#ifndef __LCD_CYR_H
-#define __LCD_CYR_H
+#ifndef __LIQUIDCRYSTALCYR_H
+#define __LIQUIDCRYSTALCYR_H
 
 #include <LiquidCrystal.h>
 
@@ -11,13 +11,13 @@
 
 ////////////////////////////////////////////////////////////////
 //Число байт на 1 символ шрифта
-#define CHARS_PER_SYMBOL  8
+#define BYTES_PER_SYMBOL  8
 //Число пользовательских символов (зависит от самого дисплея)
 #define LCD_USER_CHARS    8
 
 class LiquidCrystalCyr : public LiquidCrystal{
   uint8_t lcd_buf[LCD_ROWS][LCD_COLS];
-  uint8_t buf[CHARS_PER_SYMBOL];
+  uint8_t buf[BYTES_PER_SYMBOL];
   uint8_t _numrows;
   uint8_t _numcols;
   uint8_t _flag_refresh;
@@ -30,10 +30,11 @@ public:
   void setCursor(uint8_t, uint8_t); 
   virtual size_t write(unsigned char);
   //using Print::write;
-  using LiquidCrystal::write;
+  //using LiquidCrystal::write;
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
   //virtual size_t write(const uint8_t *buffer, size_t size);
   void clear();
+  void createChar(uint8_t location, uint8_t charmap[]);
 };
 
 #endif
