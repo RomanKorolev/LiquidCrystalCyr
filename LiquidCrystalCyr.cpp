@@ -87,12 +87,7 @@ void LiquidCrystalCyr::show(){
     LiquidCrystal::setCursor(0, y);
     for(uint8_t x = 0; x < _numcols; x++){
       uint8_t ch = lcd_buf[y][x];
-#if LCD_CHARSET == CP866
-      if(ch >= 0x80 && ch < 0xA0){
-#endif
-#if LCD_CHARSET == CP1251
-      if(ch >= 0xA0 && ch < 0xC0){
-#endif
+      if(ch >= CHARSET_LO_CODE && ch <= CHARSET_HI_CODE){
         uint8_t found = 0;
         for(uint8_t i = 0; i < loaded_chars_cnt; i++){
           if(ch == loaded_map[i]){
@@ -103,7 +98,7 @@ void LiquidCrystalCyr::show(){
         }
         //Если символ еще не находится в массиве загружаемых пользователем
         if(!found){
-          PGM_P p = reinterpret_cast<PGM_P>(LCDKirillicRecodingMap + ch - 0x80);
+          PGM_P p = reinterpret_cast<PGM_P>(LCDKirillicRecodingMap + ch - CHARSET_LO_CODE);
           ch = pgm_read_byte(p);
           if(ch <= 0x13){
             if(loaded_chars_cnt >= LCD_USER_CHARS){
@@ -169,5 +164,25 @@ void LiquidCrystalCyr::createChar(uint8_t location, uint8_t charmap[]) {
     LiquidCrystal::write(charmap[i]);
   }
   command(LCD_SETDDRAMADDR);  //Костыль чтобы выйти из этого режима
+}
+
+void LiquidCrystalCyr::print_u(const char *s){
+  unsigned char ch;
+  for(uint8_t i = 0; s[i];){
+    ch = s[i++];
+    switch (ch){
+      case 0xD0:
+        ch = s[i++];
+        if (ch == 0x81) { ch = 0xA8; break; }
+        if (ch >= 0x90 && ch <= 0xBF) ch += 0x30;
+        break;
+      case 0xD1:
+        ch = s[i++];
+        if (ch == 0x91) { ch = 0xB8; break; }
+        if (ch >= 0x80 && ch <= 0x8F) ch += 0x70;
+        break;
+    }
+    write(ch);
+  }
 }
 

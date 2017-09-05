@@ -17,6 +17,16 @@
 //Кодировка символов используемая в строках выводимых на LCD
 #define LCD_CHARSET       CP1251
 
+#if LCD_CHARSET == CP866
+#define CHARSET_LO_CODE 0x80
+#define CHARSET_HI_CODE 0x9F
+#endif
+#if LCD_CHARSET == CP1251
+#define CHARSET_LO_CODE 0xC0
+#define CHARSET_HI_CODE 0xDF
+#endif
+
+
 ////////////////////////////////////////////////////////////////
 //Число байт на 1 символ шрифта
 #define BYTES_PER_SYMBOL  8
@@ -44,6 +54,7 @@ public:
   void clear();
   void createChar(uint8_t location, uint8_t charmap[]);
   void clear_buf();
+  void print_u(const char *s);
 };
 
 #endif
