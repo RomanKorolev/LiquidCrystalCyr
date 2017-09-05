@@ -116,7 +116,7 @@ void LiquidCrystalCyr::show(){
   }
 
   // Загружаем шрифты
-  // К сожалению метод createChar, вызывает LiquidCrystal::write
+  // К сожалению метод LiquidCrystal::createChar, вызывает LiquidCrystalCyr::write
   // поэтому пришлось колхозить на низком уровне, загружаем сразу все символы
   command(LCD_SETCGRAMADDR);
   for(uint8_t k = 0; k < loaded_chars_cnt; k++){
