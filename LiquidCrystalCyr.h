@@ -9,6 +9,14 @@
 //Число строк на экране LCD
 #define LCD_ROWS          2
 
+//Кодировка строк Windows-1251
+#define CP1251            1
+//Кодировка строк DOS
+#define CP866             0
+
+//Кодировка символов используемая в строках выводимых на LCD
+#define LCD_CHARSET       CP1251
+
 ////////////////////////////////////////////////////////////////
 //Число байт на 1 символ шрифта
 #define BYTES_PER_SYMBOL  8
@@ -35,6 +43,7 @@ public:
   //virtual size_t write(const uint8_t *buffer, size_t size);
   void clear();
   void createChar(uint8_t location, uint8_t charmap[]);
+  void clear_buf();
 };
 
 #endif

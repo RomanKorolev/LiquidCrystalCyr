@@ -1,6 +1,6 @@
 #include "LiquidCrystalCyr.h"
 
-//КОНСТАНТЫ В PROGMEM Кодировка выводимых на экран строк должна быть CP866, т.к. коды ASCII коды 0x80 .. 0x9F
+//КОНСТАНТЫ В PROGMEM Кодировка выводимых на экран строк должна быть такой же как указана в LCD_CHARSET (либо CP1251, либо CP866)
 const unsigned char LCDKirillicRecodingMap [] PROGMEM= {//таблица перекодировки кириллических символов	
 	0x41, 0x00, 0x42, 0x01, 0x02, 0x45, 0x03, 0x04,				//АБВГДЕЖЗ
 	0x05, 0x06, 0x4b, 0x07, 0x4d, 0x48, 0x4f, 0x08,				//ИЙКЛМНОП
@@ -87,7 +87,12 @@ void LiquidCrystalCyr::show(){
     LiquidCrystal::setCursor(0, y);
     for(uint8_t x = 0; x < _numcols; x++){
       uint8_t ch = lcd_buf[y][x];
-      if(ch >= 0x80u && ch <= 0xB0){
+#if LCD_CHARSET == CP866
+      if(ch >= 0x80 && ch < 0xA0){
+#endif
+#if LCD_CHARSET == CP1251
+      if(ch >= 0xA0 && ch < 0xC0){
+#endif
         uint8_t found = 0;
         for(uint8_t i = 0; i < loaded_chars_cnt; i++){
           if(ch == loaded_map[i]){
@@ -137,11 +142,17 @@ void LiquidCrystalCyr::show(){
   }
   */
   //Авто перевод курсора, хотя возможно это лишнее
+  //В любом случае после загрузки пользовательских символов нужно выйти из этого режима
+  //Т.е. послать команду
   setCursor(0, 0);
 }
 
 void LiquidCrystalCyr::clear(){
   LiquidCrystal::clear();
+  clear_buf();
+}
+
+void LiquidCrystalCyr::clear_buf(){
   _x = _y = 0;
   for(uint8_t y = 0; y < _numrows; y++){
     for(uint8_t x = 0; x < _numcols; x++){
