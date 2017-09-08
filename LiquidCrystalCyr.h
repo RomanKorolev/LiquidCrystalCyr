@@ -35,7 +35,6 @@
 
 class LiquidCrystalCyr : public LiquidCrystal{
   uint8_t lcd_buf[LCD_ROWS][LCD_COLS];
-  uint8_t buf[BYTES_PER_SYMBOL];
   uint8_t _numrows;
   uint8_t _numcols;
   uint8_t _flag_refresh;
